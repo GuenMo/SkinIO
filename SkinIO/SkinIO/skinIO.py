@@ -16,9 +16,15 @@ import os
 import cPickle as pickle
 from functools import partial
 
-
-from PySide import QtGui, QtCore
-from shiboken import wrapInstance
+try:
+    from PySide.QtGui import *
+    from PySide.QtCore import *
+    from shiboken import wrapInstance
+except:
+    from PySide2.QtGui import *
+    from PySide2.QtCore import *
+    from PySide2.QtWidgets import *
+    from shiboken2 import wrapInstance
 
 import maya.cmds as cmds
 import maya.OpenMaya as OpenMaya
@@ -54,7 +60,7 @@ def getShape(node, intermediate=False):
 
 def getMayaWindow():
     ptr = OpenMayaUI.MQtUtil.mainWindow()
-    return wrapInstance(long(ptr), QtGui.QMainWindow)
+    return wrapInstance(long(ptr), QMainWindow)
 
 
 def show():
@@ -345,7 +351,7 @@ class SkinCluster(object):
         self.fn.setBlendWeights(dagPath, components, blendWeights)
 
 
-class WeightRemapDialog(QtGui.QDialog):
+class WeightRemapDialog(QDialog):
 
 
     def __init__(self, parent=None):
@@ -356,35 +362,35 @@ class WeightRemapDialog(QtGui.QDialog):
         self.resize(600, 400)
         self.mapping = {}
 
-        mainVbox = QtGui.QVBoxLayout(self)
+        mainVbox = QVBoxLayout(self)
 
-        label = QtGui.QLabel('The following influences have no corresponding influence from the ' \
+        label = QLabel('The following influences have no corresponding influence from the ' \
                              'imported file.  You can either remap the influences or skip them.')
         label.setWordWrap(True)
         mainVbox.addWidget(label)
 
-        hbox = QtGui.QHBoxLayout()
+        hbox = QHBoxLayout()
         mainVbox.addLayout(hbox)
 
         # The existing influences that didn't have weight imported
-        vbox = QtGui.QVBoxLayout()
+        vbox = QVBoxLayout()
         hbox.addLayout(vbox)
-        vbox.addWidget(QtGui.QLabel('Unmapped influences'))
-        self.existingInfluences = QtGui.QListWidget()
+        vbox.addWidget(QLabel('Unmapped influences'))
+        self.existingInfluences = QListWidget()
         vbox.addWidget(self.existingInfluences)
 
-        vbox = QtGui.QVBoxLayout()
+        vbox = QVBoxLayout()
         hbox.addLayout(vbox)
-        vbox.addWidget(QtGui.QLabel('Available imported influences'))
-        scrollArea = QtGui.QScrollArea()
-        widget = QtGui.QScrollArea()
-        self.importedInfluenceLayout = QtGui.QVBoxLayout(widget)
+        vbox.addWidget(QLabel('Available imported influences'))
+        scrollArea = QScrollArea()
+        widget = QScrollArea()
+        self.importedInfluenceLayout = QVBoxLayout(widget)
         vbox.addWidget(widget)
 
-        hbox = QtGui.QHBoxLayout()
+        hbox = QHBoxLayout()
         mainVbox.addLayout(hbox)
         hbox.addStretch()
-        btn = QtGui.QPushButton('Ok')
+        btn = QPushButton('Ok')
         btn.released.connect(self.accept)
         hbox.addWidget(btn)
 
@@ -395,16 +401,16 @@ class WeightRemapDialog(QtGui.QDialog):
         self.existingInfluences.addItems(infs)
         width = 200
         for inf in importedInfluences:
-            row = QtGui.QHBoxLayout()
+            row = QHBoxLayout()
             self.importedInfluenceLayout.addLayout(row)
-            label = QtGui.QLabel(inf)
+            label = QLabel(inf)
             row.addWidget(label)
-            toggleBtn = QtGui.QPushButton('>')
+            toggleBtn = QPushButton('>')
             toggleBtn.setMaximumWidth(30)
             row.addWidget(toggleBtn)
-            label = QtGui.QLabel('')
+            label = QLabel('')
             label.setMaximumWidth(width)
-            label.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+            label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             row.addWidget(label)
             toggleBtn.released.connect(partial(self.setInfluenceMapping, src=inf, label=label))
         self.importedInfluenceLayout.addStretch()
@@ -423,7 +429,7 @@ class WeightRemapDialog(QtGui.QDialog):
         del item
 
 
-class SkinIODialog(QtGui.QDialog):
+class SkinIODialog(QDialog):
 
     def __init__(self, parent=None):
         super(SkinIODialog, self).__init__(parent)
@@ -432,11 +438,11 @@ class SkinIODialog(QtGui.QDialog):
         self.setModal(False)
         self.setFixedSize(200, 80)
 
-        vbox = QtGui.QVBoxLayout(self)
-        btn = QtGui.QPushButton('Export')
+        vbox = QVBoxLayout(self)
+        btn = QPushButton('Export')
         btn.released.connect(SkinCluster.export)
         vbox.addWidget(btn)
-        btn = QtGui.QPushButton('Import')
+        btn = QPushButton('Import')
         btn.released.connect(SkinCluster.createAndImport)
         vbox.addWidget(btn)
 
